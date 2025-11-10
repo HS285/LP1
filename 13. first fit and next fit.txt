@@ -1,0 +1,99 @@
+class Main
+{
+    public static void main (String[]args)
+    {
+
+        int blockSize[] = {100, 50, 30, 120, 35};
+        int processSize[] = {20, 60, 70, 40};
+        int m = blockSize.length;
+        int n = processSize.length;
+        implimentFirstFit(blockSize, m, processSize, n);
+    }
+
+    static void implimentFirstFit(int blockSize[], int blocks, int processSize[], int processes) {
+        int allocate[] = new int[processes];
+        int occupied[] = new int [blocks];
+
+        for (int i = 0; i < allocate.length; i++)
+            allocate[i] = -1;
+
+        for(int i = 0; i < blocks; i++){
+            occupied[i] = 0;
+        }
+
+        for (int i = 0; i < processes; i++)
+        {
+            for (int j = 0; j < blocks; j++)
+            {
+                if (!(occupied[j] > 0) && blockSize[j] >= processSize[i])
+                {
+                    allocate[i] = j;
+                    occupied[j] = 1;
+
+                    break;
+                }
+            }
+        }
+
+        System.out.println("\nProcess No.\tProcess Size\tBlock no.\n");
+        for (int i = 0; i < processes; i++)
+        {
+            System.out.print(i + 1 + "\t\t\t" + processSize[i] + "\t\t\t");
+            if (allocate[i] != -1)
+                System.out.println(allocate[i] + 1);
+            else
+                System.out.println("Not Allocated");
+        }
+    }
+}
+
+// next fit
+
+import java.util.Arrays;
+
+public class GFG {
+
+    static void Next_Fit(int block_size[], int m, int process_size[], int n) {
+        int[] allocate = new int[n];
+        Arrays.fill(allocate, -1); 
+
+        int j = 0;
+        for (int i = 0; i < n; i++) {
+            int count = 0;
+            boolean allocated = false;
+
+            while (count < m) {
+                if (block_size[j] >= process_size[i]) {
+                    allocate[i] = j;
+                    block_size[j] -= process_size[i];
+                    allocated = true;
+                    break;
+                }
+                j = (j + 1) % m;
+                count++;
+            }
+
+            if (!allocated) {
+                allocate[i] = -1; 
+            }
+        }
+
+        System.out.println("\nProcess No.\tProcess Size\tBlock No.");
+        for (int i = 0; i < n; i++) {
+            System.out.print((i + 1) + "\t\t" + process_size[i] + "\t\t");
+            if (allocate[i] != -1)
+                System.out.println(allocate[i] + 1); 
+            else
+                System.out.println("Not Allocated");
+        }
+    }
+
+    public static void main(String[] args) {
+        int[] block_size = {5, 10, 20};
+        int[] process_size = {10, 20, 5};
+        int m = block_size.length;
+        int n = process_size.length;
+
+        Next_Fit(block_size, m, process_size, n);
+    }
+}

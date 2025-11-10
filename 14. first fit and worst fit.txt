@@ -1,0 +1,97 @@
+class Main
+{
+    public static void main (String[]args)
+    {
+
+        int blockSize[] = {100, 50, 30, 120, 35};
+        int processSize[] = {20, 60, 70, 40};
+        int m = blockSize.length;
+        int n = processSize.length;
+        implimentFirstFit(blockSize, m, processSize, n);
+    }
+
+    static void implimentFirstFit(int blockSize[], int blocks, int processSize[], int processes) {
+        int allocate[] = new int[processes];
+        int occupied[] = new int [blocks];
+
+        for (int i = 0; i < allocate.length; i++)
+            allocate[i] = -1;
+
+        for(int i = 0; i < blocks; i++){
+            occupied[i] = 0;
+        }
+
+        for (int i = 0; i < processes; i++)
+        {
+            for (int j = 0; j < blocks; j++)
+            {
+                if (!(occupied[j] > 0) && blockSize[j] >= processSize[i])
+                {
+                    allocate[i] = j;
+                    occupied[j] = 1;
+
+                    break;
+                }
+            }
+        }
+
+        System.out.println("\nProcess No.\tProcess Size\tBlock no.\n");
+        for (int i = 0; i < processes; i++)
+        {
+            System.out.print(i + 1 + "\t\t\t" + processSize[i] + "\t\t\t");
+            if (allocate[i] != -1)
+                System.out.println(allocate[i] + 1);
+            else
+                System.out.println("Not Allocated");
+        }
+    }
+}
+
+
+// worst fit
+
+public class PrepInsta {
+    static void worstFit(int b_Size[], int m, int p_Size[], int n) {
+    
+        int allocate[] = new int[n];
+
+        for (int i = 0; i < allocate.length; i++)
+            allocate[i] = -1;
+
+        for (int i = 0; i < n; i++) {
+            int wstIdx = -1;
+
+            for (int j = 0; j < m; j++) {
+                if (b_Size[j] >= p_Size[i]) {
+                    if (wstIdx == -1 || b_Size[wstIdx] < b_Size[j]) {
+                        wstIdx = j;
+                    }
+                }
+            }
+
+            if (wstIdx != -1) {
+                allocate[i] = wstIdx;
+                b_Size[wstIdx] -= p_Size[i]; 
+            }
+        }
+
+        System.out.println("\nProcess Number\tProcess Size\tBlock Number");
+        for (int i = 0; i < n; i++) {
+            System.out.print(" " + (i + 1) + "\t\t" + p_Size[i] + "\t\t");
+            if (allocate[i] != -1)
+                System.out.print(allocate[i] + 1); 
+            else
+                System.out.print("Not Allocated");
+            System.out.println();
+        }
+    }
+
+    public static void main(String[] args) {
+        int b_Size[] = {100, 500, 200, 300, 600};
+        int p_Size[] = {212, 417, 112, 426};
+        int m = b_Size.length;
+        int n = p_Size.length;
+
+        worstFit(b_Size, m, p_Size, n);
+    }
+}

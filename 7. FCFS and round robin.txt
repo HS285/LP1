@@ -1,0 +1,133 @@
+import java.util.*;
+
+public class FCFS_Scheduling {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+
+        Process[] processes = new Process[n];
+
+        for (int i = 0; i < n; i++) {
+            System.out.println("\nEnter details for Process " + (i + 1));
+            System.out.print("Arrival Time: ");
+            int at = sc.nextInt();
+            System.out.print("Burst Time: ");
+            int bt = sc.nextInt();
+            processes[i] = new Process(i + 1, at, bt);
+        }
+
+        Arrays.sort(processes, Comparator.comparingInt(p -> p.arrivalTime));
+
+        int currentTime = 0;
+        for (Process p : processes) {
+            if (currentTime < p.arrivalTime) {
+                currentTime = p.arrivalTime; // CPU idle
+            }
+            p.completionTime = currentTime + p.burstTime;
+            p.turnaroundTime = p.completionTime - p.arrivalTime;
+            p.waitingTime = p.turnaroundTime - p.burstTime;
+            currentTime = p.completionTime;
+        }
+
+        System.out.println("\nPID\tAT\tBT\tCT\tTAT\tWT");
+        for (Process p : processes) {
+            System.out.printf("P%d\t%d\t%d\t%d\t%d\t%d\n",
+                    p.pid, p.arrivalTime, p.burstTime, p.completionTime,
+                    p.turnaroundTime, p.waitingTime);
+        }
+
+        System.out.println("\nGantt Chart:");
+        System.out.print("|");
+        for (Process p : processes) {
+            System.out.print("  P" + p.pid + "  |");
+        }
+
+        System.out.println();
+        System.out.print(processes[0].arrivalTime);
+        for (Process p : processes) {
+            System.out.printf("%6d", p.completionTime);
+        }
+
+        sc.close();
+    }
+}
+class Process {
+    int pid, arrivalTime, burstTime, completionTime, waitingTime, turnaroundTime;
+
+    public Process(int pid, int arrivalTime, int burstTime) {
+        this.pid = pid;
+        this.arrivalTime = arrivalTime;
+        this.burstTime = burstTime;
+    }
+}
+
+
+//Round Robin
+
+import java.util.*;
+
+public class RR_Scheduling {
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of processes: ");
+        int n = sc.nextInt();
+
+        int[] bt = new int[n];   
+        int[] rt = new int[n];   
+        int[] wt = new int[n];   
+        int[] tat = new int[n];  
+
+        for (int i = 0; i < n; i++) {
+            System.out.print("Enter burst time for P" + (i + 1) + ": ");
+            bt[i] = sc.nextInt();
+            rt[i] = bt[i];
+        }
+
+        System.out.print("Enter time quantum: ");
+        int quantum = sc.nextInt();
+
+        int time = 0; 
+        boolean done;
+
+        System.out.print("\nGantt Chart:\n" + time);
+
+        do {
+            done = true;
+            for (int i = 0; i < n; i++) {
+                if (rt[i] > 0) {
+                    done = false;
+
+                    System.out.print(" | P[" + (i + 1) + "] | ");
+                    if (rt[i] > quantum) {
+                        time += quantum;
+                        rt[i] -= quantum;
+                    } else {
+                        time += rt[i];
+                        wt[i] = time - bt[i]; 
+                        rt[i] = 0;
+                    }
+                    System.out.print(time);
+                }
+            }
+        } while (!done);
+
+        for (int i = 0; i < n; i++) {
+            tat[i] = bt[i] + wt[i];
+        }
+
+        System.out.println("\n\nProcess\tBurst Time\tWaiting Time\tTurnaround Time");
+        int totalWT = 0, totalTAT = 0;
+        for (int i = 0; i < n; i++) {
+            System.out.printf("P%d\t\t%d\t\t%d\t\t%d\n", (i + 1), bt[i], wt[i], tat[i]);
+            totalWT += wt[i];
+            totalTAT += tat[i];
+        }
+
+        System.out.printf("\nAverage Waiting Time: %.2f\n", (double) totalWT / n);
+        System.out.printf("Average Turnaround Time: %.2f\n", (double) totalTAT / n);
+    }
+}
