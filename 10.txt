@@ -157,4 +157,5 @@ public class SJF_Scheduling {
         System.out.printf("\nAverage Waiting Time: %.2f\n", (double) totalWT / n);
         System.out.printf("Average Turnaround Time: %.2f\n", (double) totalTAT / n);
     }
+
 }
