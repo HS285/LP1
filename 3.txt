@@ -1,0 +1,75 @@
+import java.io.*;
+import java.util.*;
+
+public class macro_pass1 {
+    public static void main(String[] args) throws Exception {
+        Map<String, Integer> MNT = new LinkedHashMap<>();
+        List<String> MDT = new ArrayList<>();
+
+        BufferedReader br = new BufferedReader(new FileReader("macro_input.txt"));
+        String line;
+        boolean inMacro = false;
+        boolean firstLine = false; 
+        int mdtp = 0;
+
+        while ((line = br.readLine()) != null) {
+            line = line.trim();
+            if (line.isEmpty()) continue;
+
+            if (line.equalsIgnoreCase("MACRO")) {
+                inMacro = true;
+                firstLine = true;
+                continue;
+            }
+
+            if (inMacro) {
+                if (line.equalsIgnoreCase("MEND")) {
+                    MDT.add("MEND");
+                    inMacro = false;
+                    mdtp++;
+                    continue;
+                }
+
+                if (firstLine) {
+                    String macroName = line.split("\\s+")[0];
+                    MNT.put(macroName, mdtp);
+                    firstLine = false;
+                }
+
+                MDT.add(line);
+                mdtp++;
+            }
+        }
+        br.close();
+
+        try (PrintWriter pw = new PrintWriter("mnt.txt")) {
+            for (var e : MNT.entrySet())
+                pw.println(e.getKey() + " " + e.getValue());
+        }
+
+        try (PrintWriter pw = new PrintWriter("mdt.txt")) {
+            for (String s : MDT)
+                pw.println(s);
+        }
+
+        System.out.println("Pass 1 completed");
+    }
+}
+
+
+
+
+
+
+
+
+
+MACRO
+INCR &A, &B
+MOVER AREG, &A
+ADD AREG, &B
+MOVEM AREG, &A
+MEND
+START 100
+INCR X, Y
+END
