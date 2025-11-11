@@ -1,0 +1,89 @@
+import java.io.*;
+import java.util.*;
+
+public class pass2 {
+    public static void main(String[] args) throws IOException {
+        Map<String, String> symtab = new HashMap<>();
+        List<String> output = new ArrayList<>();
+        int loc = 0; 
+        try (BufferedReader br = new BufferedReader(new FileReader("symtab.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) continue; 
+
+                String[] parts = line.split("\\s+");
+                if (parts.length >= 3) {
+                    String symbol = parts[1];
+                    String address = parts[2];
+                    symtab.put(symbol, address);
+                }
+            }
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader("intermediate.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) continue;
+                String[] parts = line.split("[\\s():,]+");
+
+                if (parts.length < 3) continue;
+
+                String locStr = parts[0];  
+                String type = parts[1];    
+                String id = parts.length > 2 ? parts[2] : "00"; 
+                String reg = parts.length > 3 ? parts[3] : "0"; 
+                String symName = parts.length > 5 ? parts[5] : null; 
+
+                String addr = "000";
+
+                switch (type) {
+                    case "AD" -> {
+                        if (id.equals("01") && parts.length > 4)
+                            loc = Integer.parseInt(parts[4]); 
+                        output.add(loc + " : --");
+                        loc++;
+                    }
+
+                    case "DL" -> {
+                        String val = parts.length > 4 ? parts[4] : "0"; 
+                        output.add(loc + " : 00 0 " + val);
+                        loc++;
+                    }
+
+                    case "IS" -> {
+                        if (symName != null && symtab.containsKey(symName))
+                            addr = symtab.get(symName);
+                        output.add(loc + " : " + id + " " + reg + " " + addr);
+                        loc++;
+                    }
+                }
+
+            }
+        }
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("machinecode.txt"))) {
+            for (String s : output) {
+                bw.write(s);
+                bw.newLine();
+            }
+        }
+
+        System.out.println("Pass-2 completed");
+    }
+}
+
+
+
+
+200: (AD,01) (C,200)
+200: (IS,04) 1 S,A
+201: (IS,01) 2 S,B
+202: (DL,01) (C,1)
+203: (AD,02)
+
+
+
+S0  A  202
+S1  B  201
