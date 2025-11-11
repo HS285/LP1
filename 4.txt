@@ -1,0 +1,80 @@
+import java.io.*;
+import java.util.*;
+
+public class macro_pass2 {
+    public static void main(String[] args) throws Exception {
+        Map<String, Integer> MNT = new LinkedHashMap<>();
+        try (BufferedReader br = new BufferedReader(new FileReader("mnt.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) continue;
+                String[] parts = line.split("\\s+");
+                if (parts.length >= 2)
+                    MNT.put(parts[0], Integer.parseInt(parts[1]));
+            }
+        }
+
+        List<String> MDT = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader("mdt.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null)
+                MDT.add(line.trim());
+        }
+
+        BufferedReader code = new BufferedReader(new FileReader("macro_input.txt"));
+        List<String> expanded = new ArrayList<>();
+
+        String line;
+        boolean skip = false;
+        while ((line = code.readLine()) != null) {
+            line = line.trim();
+            if (line.equalsIgnoreCase("MACRO")) { skip = true; continue; }
+            if (skip && line.equalsIgnoreCase("MEND")) { skip = false; continue; }
+            if (skip || line.isEmpty()) continue;
+
+            String[] parts = line.split("\\s+", 2);
+            String name = parts[0];
+
+            if (MNT.containsKey(name)) {
+                int mdtp = MNT.get(name);
+                for (int i = mdtp + 1; i < MDT.size(); i++) {
+                    String def = MDT.get(i);
+                    if (def.equals("MEND")) break;
+                    if (parts.length > 1 && def.contains("&")) {
+                        String[] arguments = parts[1].split(",");
+                        def = def.replace("&A", arguments[0].trim());
+                        if (arguments.length > 1)
+                            def = def.replace("&B", arguments[1].trim());
+                    }
+                    expanded.add("+" + def);
+                }
+            } else {
+                expanded.add(line);
+            }
+        }
+        code.close();
+
+        try (PrintWriter pw = new PrintWriter("expanded.txt")) {
+            for (String s : expanded)
+                pw.println(s);
+        }
+
+        System.out.println("Pass2 completed");
+    }
+}
+
+
+
+
+mdt 
+INCR &A, &B
+MOVER AREG, &A
+ADD AREG, &B
+MOVEM AREG, &A
+MEND
+
+
+
+mnt
+INCR 0
